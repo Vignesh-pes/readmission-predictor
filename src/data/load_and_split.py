@@ -34,9 +34,7 @@ def patient_level_split(
     Split data by patient_nbr to avoid data leakage
     """
     splitter = GroupShuffleSplit(
-        n_splits=1,
-        test_size=test_size,
-        random_state=random_state
+        n_splits=1, test_size=test_size, random_state=random_state
     )
 
     groups = df["patient_nbr"]
@@ -71,9 +69,7 @@ if __name__ == "__main__":
     print("Test shape:", test_df.shape)
 
     # safety check
-    overlap = set(train_df["patient_nbr"]).intersection(
-        set(test_df["patient_nbr"])
-    )
+    overlap = set(train_df["patient_nbr"]).intersection(set(test_df["patient_nbr"]))
     print("Patient overlap:", len(overlap))
 
     save_processed_data(train_df, TRAIN_PATH)

@@ -41,10 +41,9 @@ def main():
 
         model = XGBClassifier(**params)
 
-        pipeline = Pipeline([
-            ("preprocessing", build_preprocessing_pipeline()),
-            ("model", model)
-        ])
+        pipeline = Pipeline(
+            [("preprocessing", build_preprocessing_pipeline()), ("model", model)]
+        )
 
         pipeline.fit(X_train, y_train)
 

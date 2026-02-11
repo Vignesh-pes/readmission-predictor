@@ -1,5 +1,6 @@
-import joblib
 from pathlib import Path
+
+import joblib
 
 MODEL_PATH = Path("artifacts/final_model.joblib")
 

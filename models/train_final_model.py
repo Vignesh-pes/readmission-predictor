@@ -9,6 +9,7 @@ from src.features.preprocessing import build_preprocessing_pipeline
 
 FINAL_THRESHOLD = 0.45
 
+
 def main():
     train_df = pd.read_parquet("data/processed/train.parquet")
 
@@ -31,19 +32,15 @@ def main():
 
     model = XGBClassifier(**best_params)
 
-    pipeline = Pipeline([
-        ("preprocessing", build_preprocessing_pipeline()),
-        ("model", model)
-    ])
+    pipeline = Pipeline(
+        [("preprocessing", build_preprocessing_pipeline()), ("model", model)]
+    )
 
     pipeline.fit(X_train, y_train)
 
     joblib.dump(
-        {
-            "pipeline": pipeline,
-            "threshold": FINAL_THRESHOLD
-        },
-        "artifacts/final_model.joblib"
+        {"pipeline": pipeline, "threshold": FINAL_THRESHOLD},
+        "artifacts/final_model.joblib",
     )
 
     print("Final model saved with threshold =", FINAL_THRESHOLD)

@@ -2,6 +2,7 @@
 import joblib
 import numpy as np
 import pytest
+
 from app.main import app as fastapi_app
 
 
@@ -31,7 +32,11 @@ def mock_joblib_load(monkeypatch):
 
 @pytest.fixture
 def client():
-    """TestClient that triggers FastAPI startup (which will call the monkeypatched joblib.load)."""
+    """
+    TestClient that triggers FastAPI startup
+    (which will call the monkeypatched joblib.load).
+    """
+
     from fastapi.testclient import TestClient
 
     with TestClient(fastapi_app) as client:

@@ -27,13 +27,12 @@ def main():
     model = LogisticRegression(
         max_iter=2000,
         class_weight={0: 1, 1: 5},  # penalize missing readmissions
-        n_jobs=-1
+        n_jobs=-1,
     )
 
-    pipeline = Pipeline([
-        ("preprocessing", build_preprocessing_pipeline()),
-        ("model", model)
-    ])
+    pipeline = Pipeline(
+        [("preprocessing", build_preprocessing_pipeline()), ("model", model)]
+    )
 
     pipeline.fit(X_train, y_train)
 

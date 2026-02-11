@@ -46,11 +46,7 @@ data/raw/
 data/processed/
 
 # =========================
-# Trained Models / Artifacts
-# =========================
-artifacts/
-*.joblib
-*.pkl
+
 
 # =========================
 # Docker

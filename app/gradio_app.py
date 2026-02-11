@@ -193,4 +193,5 @@ with gr.Blocks(title="30-Day Hospital Readmission Risk Predictor") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=True)
+    server_name = os.getenv("SERVER_NAME", "127.0.0.1")
+    demo.launch(server_name=server_name, server_port=7860, share=False)

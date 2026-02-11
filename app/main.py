@@ -1,7 +1,8 @@
 # app/main.py
+from pathlib import Path
 import joblib
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI(title="Readmission Prediction API")
@@ -34,17 +35,25 @@ class PatientData(BaseModel):
 
 
 # -----------------------------
-# Startup: load model artifact (runs when TestClient starts)
+# Startup: Load Model
 # -----------------------------
 @app.on_event("startup")
 def load_artifact():
+    model_path = Path("artifacts/final_model.joblib")
+
+    if not model_path.exists():
+        print("⚠ Model file not found:", model_path)
+        app.state.pipeline = None
+        app.state.threshold = 0.5
+        return
+
     try:
-        artifact = joblib.load("artifacts/final_model.joblib")
+        artifact = joblib.load(model_path)
         app.state.pipeline = artifact["pipeline"]
         app.state.threshold = artifact.get("threshold", 0.5)
-    except Exception:
-        # During tests we'll monkeypatch joblib.load to return a mock artifact.
-        # If it fails in other envs, keep pipeline None so we can return 503 if used.
+        print("✅ Model loaded successfully.")
+    except Exception as e:
+        print("❌ Model loading failed:", str(e))
         app.state.pipeline = None
         app.state.threshold = 0.5
 
@@ -62,16 +71,19 @@ def health_check():
 # -----------------------------
 @app.post("/predict")
 def predict_readmission(data: PatientData):
-    # pydantic v2 uses model_dump; older versions use dict(). Support both.
-    record = data.model_dump() if hasattr(data, "model_dump") else data.dict()
 
+    record = data.model_dump() if hasattr(data, "model_dump") else data.dict()
     df = pd.DataFrame([record])
 
     pipeline = getattr(app.state, "pipeline", None)
+
     if pipeline is None:
-        return {"error": "model not loaded"}, 503
+        raise HTTPException(status_code=503, detail="Model not loaded")
 
     prob = pipeline.predict_proba(df)[0, 1]
     prediction = int(prob >= app.state.threshold)
 
-    return {"readmission_probability": round(float(prob), 4), "prediction": prediction}
+    return {
+        "readmission_probability": round(float(prob), 4),
+        "prediction": prediction,
+    }
